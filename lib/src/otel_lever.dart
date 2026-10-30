@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_lever_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_lever';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class LeverResult {
+  /// Creates a result.
   const LeverResult({
     this.performAsUserId,
     this.entityKind,
@@ -88,8 +89,13 @@ class LeverResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class LeverCallResult<T> {
+  /// Creates a call result.
   const LeverCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final LeverResult? result;
 }
@@ -117,110 +123,110 @@ Future<T> tracedLever<T>({
   final span = _tracer().startSpan(
     'lever $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.performAsUserId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.perform_as.user_id',
           r.result!.performAsUserId!,
         ));
       }
       if (r.result!.entityKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.entity.kind',
           r.result!.entityKind!,
         ));
       }
       if (r.result!.entityId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.entity.id',
           r.result!.entityId!,
         ));
       }
       if (r.result!.opportunityId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.opportunity.id',
           r.result!.opportunityId!,
         ));
       }
       if (r.result!.opportunityStage != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.opportunity.stage',
           r.result!.opportunityStage!,
         ));
       }
       if (r.result!.opportunityOrigin != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.opportunity.origin',
           r.result!.opportunityOrigin!,
         ));
       }
       if (r.result!.archived != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'lever.opportunity.archived',
           r.result!.archived!,
         ));
       }
       if (r.result!.archiveReason != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.archive.reason',
           r.result!.archiveReason!,
         ));
       }
       if (r.result!.postingId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.posting.id',
           r.result!.postingId!,
         ));
       }
       if (r.result!.postingState != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.posting.state',
           r.result!.postingState!,
         ));
       }
       if (r.result!.requisitionId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.requisition.id',
           r.result!.requisitionId!,
         ));
       }
       if (r.result!.interviewId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.interview.id',
           r.result!.interviewId!,
         ));
       }
       if (r.result!.interviewStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.interview.status',
           r.result!.interviewStatus!,
         ));
       }
       if (r.result!.feedbackTemplate != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.feedback.template',
           r.result!.feedbackTemplate!,
         ));
       }
       if (r.result!.feedbackRating != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.feedback.rating',
           r.result!.feedbackRating!,
         ));
       }
       if (r.result!.applicationType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'lever.application.type',
           r.result!.applicationType!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -231,13 +237,13 @@ Future<T> tracedLever<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
